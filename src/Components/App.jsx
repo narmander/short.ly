@@ -1,9 +1,8 @@
 import React, { useEffect, useReducer } from 'react';
-import styled from 'styled-components';
-
+import { URLManager } from './URLManager/URLManager';
 
 export const App = () => {
     return(
-        <div>hello</div>
+       <URLManager />
     );
 };
