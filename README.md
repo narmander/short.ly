@@ -49,7 +49,7 @@ It is not the ideal system and if I had control over the API I would add the nec
 Having a cache still did provide nice wins like quick lookups for slugs taken and quick rerenders when new links were added (since we didn't have to do any GET requests after a new link was added to get the updated list).
 
 ## Nice to haves
-- Copy button to easily grab the new short link. (This could have been easily implemented as util function if I had more time. Used a pretty tiny library, - --------erClipboard.js, san react wrapper, to achieve it).
+- Copy button to easily grab the new short link. (This could have been easily implemented as util function if I had more time. Used a pretty tiny library, Clipboard.js, san react wrapper, to achieve it).
 - View of how much time was left before a link expired.
 - Animated buttons.
 - Some Acessibility details (links and buttons clearly showing they are on focus or active)
