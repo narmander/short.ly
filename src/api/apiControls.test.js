@@ -26,9 +26,7 @@ describe('API Controls', () => {
 				created_at: expect.any(Date),
 				expires_at: expect.any(Number),
 			};
-			// fetch.mockReturnValue(
-			// 	Promise.resolve(JSON.stringify({ json: () => apiResponse }))
-			// );
+
 			const objIncludingDateProps = Object.assign(apiResponse, dateProps);
 
 			const normalizedObj = await createLink('closestcorgi.com');
