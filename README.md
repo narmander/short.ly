@@ -1,7 +1,7 @@
 # short.li
 URL Shortening Service
 
-
+![img of main page](./src/Assets.ShortliPage.png)
 
 
 ### Installation
