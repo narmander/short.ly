@@ -34,17 +34,23 @@ body {
 
   a {
     color: ${TEAL};
+    text-decoration: none;
   }
 
   img {
       width: 100%;
   }
 
+  li {
+    list-style: none;
+			padding-left: 0;
+  }
+
   button {
     cursor: pointer;
     outline: none;
     border:none;
-    border-radius: .3em;
+    border-radius: .4em;
     transition: all 0.2s ease-in-out;
     box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
     font-family: 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;

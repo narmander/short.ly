@@ -33,7 +33,7 @@ export const removeLink = (slug, cache) => {
 	updateCache(filteredCache);
 };
 
-export const separateExpiredLinks = () => {
+export const separateExpiredLinks = (cache) => {
 	const links = getLinks();
 	const expired = [];
 	const now = new Date();

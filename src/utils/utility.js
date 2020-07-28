@@ -1,5 +1,5 @@
 // CONSTANTS
-export const TIME_TO_LIVE = 600000;
+export const TIME_TO_LIVE = 600000; // 10 minutes in milliseconds for demo purposes
 export const POST = 'POST';
 export const DELETE = 'DELETE';
 
@@ -36,6 +36,8 @@ export const timeLeft = (expires_at) => {
 	// calculate (and subtract) whole minutes
 	const minutes = Math.floor(timeLeft / 60) % 60;
 	timeLeft -= minutes * 60;
+
+	// returning minutes for demo purposes but we could return other data too
 
 	return minutes;
 };

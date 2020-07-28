@@ -9,7 +9,7 @@ import {
 	separateExpiredLinks,
 } from 'Storage/storageControls';
 import { createLink, deleteLink } from 'API/apiControls';
-import { ORANGE, CREAM, GREY } from 'Styles/globalStyles';
+import { ORANGE, CREAM, GREY, TEAL } from 'Styles/globalStyles';
 import { timeLeft } from 'Utils/utility';
 
 export const LinkManager = () => {
@@ -21,7 +21,7 @@ export const LinkManager = () => {
 		if (!localStorage.hasOwnProperty('links')) {
 			localStorage.setItem('links', '[]');
 		} else {
-			const expiredLinks = separateExpiredLinks();
+			const expiredLinks = separateExpiredLinks(cache);
 
 			setCache(getLinks());
 
@@ -109,7 +109,7 @@ export const LinkManager = () => {
 								type='text'
 								onChange={handleInputChange}
 								name='customSlug'
-								maxLength="15"
+								maxLength='15'
 							/>
 						</div>
 						<div className='shorten-button-container'>
@@ -259,6 +259,12 @@ const LinkManagerStyles = styled.div`
 					padding: 0.3em;
 					color: ${ORANGE};
 					font-size: 2rem;
+
+					:hover,
+					:focus {
+						background: ${TEAL};
+						color: ${CREAM};
+					}
 				}
 			}
 		}
@@ -285,8 +291,6 @@ const LinkManagerStyles = styled.div`
 
 		.link-list {
 			border-radius: 0.3em;
-			list-style: none;
-			padding-left: 0;
 
 			.link-list:last-child {
 				border: none;
@@ -317,6 +321,7 @@ const LinkManagerStyles = styled.div`
 			.long-link-container {
 				display: flex;
 				text-overflow: ellipsis;
+				max-width: 200px;
 
 				/* Required for text-overflow to do anything */
 				white-space: nowrap;
