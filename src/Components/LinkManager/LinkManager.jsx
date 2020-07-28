@@ -5,12 +5,13 @@ import {
 	updateCache,
 	slugExists,
 	removeLink,
+	separateExpiredLinks,
 } from '../../storage/storageControls';
 import { createLink, deleteLink } from '../../api/apiControls';
 import { ORANGE, CREAM, GREY } from 'Styles/themes';
+import { timeLeft } from '../../utils/utility';
 
 export const LinkManager = () => {
-	let inputRef = useRef(null);
 	const [cache, setCache] = useState([]);
 	const [error, setError] = useState('');
 
@@ -18,7 +19,14 @@ export const LinkManager = () => {
 		if (!localStorage.hasOwnProperty('links')) {
 			localStorage.setItem('links', '[]');
 		} else {
+			
+			const expiredLinks = separateExpiredLinks();
+			
 			setCache(getLinks());
+
+			expiredLinks.forEach((expiredLink) => {
+				deleteLink(expiredLink.slug);
+			});
 		}
 	}, [localStorage]);
 
@@ -48,25 +56,31 @@ export const LinkManager = () => {
 
 	const { handleInputChange, handleSubmit } = useForm(submitLink);
 
-	async function submitLink({longLink, customSlug}) {
+	async function submitLink({ longLink, customSlug }) {
 		if (slugExists(customSlug, cache)) {
 			setError(`${customSlug} has already been taken`);
 		} else {
-			const newLink = await createLink(longLink, customSlug, );
+			const newLink = await createLink(longLink, customSlug);
 			if (newLink.error) {
 				setError(newLink.result);
 			} else {
-				console.log(newLink);
-				updateCache(newLink.result, cache);
+				updateCache(cache, newLink.result);
 				setCache(getLinks());
+				setError('');
 			}
 		}
 	}
 
-	function expireLink(link) {
-		removeLink({ slug: link.slug, cache });
+	async function expireLink(slug) {
+		const linkDeletion = await deleteLink(slug);
 
-		setCache(getLinks());
+		if (linkDeletion.error) {
+			setError(linkDeletion.result);
+		} else {
+			removeLink(slug, cache);
+			setCache(getLinks());
+			setError('');
+		}
 	}
 
 	return (
@@ -77,8 +91,8 @@ export const LinkManager = () => {
 						<div className='long-link-input-container'>
 							<input
 								type='text'
-								pattern='^(https?://)?([a-zA-Z0-9]([a-zA-ZäöüÄÖÜ0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$'
 								className='long-link-input'
+								pattern='^(https?://)?([a-zA-Z0-9]([a-zA-ZäöüÄÖÜ0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$'
 								placeholder='Take a bite out of that link!'
 								required={true}
 								onChange={handleInputChange}
@@ -91,7 +105,6 @@ export const LinkManager = () => {
 								autoComplete='off'
 								className='custom-input'
 								placeholder='/custom'
-								ref={inputRef}
 								type='text'
 								onChange={handleInputChange}
 								name='customSlug'
@@ -102,41 +115,48 @@ export const LinkManager = () => {
 						</div>
 					</div>
 				</form>
+				<center>
+					<span className='error-message'>{error}</span>
+				</center>
 				<div className='most-recent-links-container'>
 					<ul className='link-list'>
-						<li className='link'>
-							<div className='link-details'>
-								<div className='long-link-container'>
-									<span className='long-link'>NemKaldi.com </span>
-								</div>
-								<div className='expiration-container'>
-									<span className='expiration-timer'>Expires in: 4:20</span>
-									<button
-										className='expire-link-button'
-										children='Expire Now'
-										onClick={expireLink}
-									/>
-								</div>
-								<div className='copy-container'>
-									<span>
-										<a
-											href='${long-url}'
-											className='short-link'
-											target='_blank'
-											title='shortened-url ${long-url}'>
-											nem.com
-										</a>
-									</span>
-									<span className='copy-button-container'>
-										<button
-											className='copy-button'
-											type='copy'
-											children='Copy'
-										/>
-									</span>
-								</div>
-							</div>
-						</li>
+						{cache.map(link => {
+							return (
+								<li className='link' key={link.slug}>
+									<div className='link-details'>
+										<div className='long-link-container'>
+											<span className='long-link'>{link.url}</span>
+										</div>
+										<div className='expiration-container'>
+											<span className='expiration-timer'>Expires in: {timeLeft(link.expires_at)}min</span>
+											<button
+												className='expire-link-button'
+												children='Expire Now'
+												onClick={() => expireLink(link.slug)}
+											/>
+										</div>
+										<div className='copy-container'>
+											<span>
+												<a
+													href={`http://${link.url}`}
+													className='short-link'
+													target='_blank'
+													title='shortened-url'>
+													{link.short_url}
+												</a>
+											</span>
+											<span className='copy-button-container'>
+												<button
+													className='copy-button'
+													type='copy'
+													children='Copy'
+												/>
+											</span>
+										</div>
+									</div>
+								</li>
+							);
+						})}
 					</ul>
 				</div>
 			</div>
@@ -151,13 +171,12 @@ const LinkManagerStyles = styled.div`
 	min-width: 800px;
 
 	.link-manager-container {
-		min-width: 500px;
-
 		margin: 0 auto;
-		width: 70%;
+		width: 100%;
 
 		@media (min-width: 800px) {
 			min-width: 800px;
+			width: 70%;
 		}
 	}
 
@@ -217,15 +236,12 @@ const LinkManagerStyles = styled.div`
 						border-top-left-radius: 0;
 					}
 				}
-
-				.enable-custom-input {
-					width: 10%;
-				}
 			}
 
 			.shorten-button-container {
 				display: flex;
 				width: 90%;
+				margin: 0 0.5em;
 
 				@media (min-width: 800px) {
 					width: 20%;
@@ -240,6 +256,11 @@ const LinkManagerStyles = styled.div`
 				}
 			}
 		}
+	}
+
+	.error-message {
+		color: red;
+		margin: 0 auto;
 	}
 
 	.most-recent-links-container {
@@ -288,9 +309,15 @@ const LinkManagerStyles = styled.div`
 			}
 
 			.long-link-container {
+				display: flex;
+				text-overflow: ellipsis;
+
+				/* Required for text-overflow to do anything */
+				white-space: nowrap;
+				overflow: hidden;
 				.long-link {
 					font-size: 2.5rem;
-
+					text-overflow: ellipsis;
 					@media (min-width: 800px) {
 						font-size: 1.5rem;
 					}
@@ -300,7 +327,7 @@ const LinkManagerStyles = styled.div`
 			.expiration-container {
 				display: flex;
 				justify-content: space-between;
-				font-size: 2.5rem;
+				font-size: 1rem;
 
 				@media (min-width: 800px) {
 					font-size: 1.5rem;
@@ -330,7 +357,7 @@ const LinkManagerStyles = styled.div`
 				align-items: baseline;
 
 				.short-link {
-					font-size: 3rem;
+					font-size: 2.5rem;
 					margin: 1em;
 
 					@media (min-width: 800px) {

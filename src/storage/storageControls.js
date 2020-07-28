@@ -2,35 +2,21 @@ export const getLinks = () => {
 	return JSON.parse(localStorage.getItem('links'));
 };
 
-export const makeHash = (slug) =>  {
-	let hash = '';
-
-	slug.split('').forEach((character, i) => {
-		hash += slug.charCodeAt(i);
-	});
-
-	return hash;
-};
-
-export const updateCache = (linkEntry, cache) => {
-	const index = makeHash(linkEntry.slug);
-
-	cache[index] = linkEntry;
+export const updateCache = (cache, linkEntry) => {
+	if (linkEntry) {
+		cache.push(linkEntry);
+		localStorage.setItem(linkEntry.slug, linkEntry.slug);
+	}
 
 	localStorage.setItem('links', JSON.stringify(cache));
 };
 
-// make faster with a hashes obj in localstorage
-// add to check if url is taken since it is not consistent
-// store at index in an ARRAY created by getting charcode of slug chars
-// then when you map the data filter.((item) => item !== null)
-// or see if it naturally skips nulls (if time)
-export const slugExists = (slug, cache) => {
+export const slugExists = slug => {
 	if (slug === undefined) return false;
 
-	let hash = makeHash(slug);
+	const slugIsInCache = localStorage.getItem(slug);
 
-	if (cache[hash] && cache[hash].slug === slug) {
+	if (slugIsInCache) {
 		return true;
 	} else {
 		return false;
@@ -38,11 +24,30 @@ export const slugExists = (slug, cache) => {
 };
 
 export const removeLink = (slug, cache) => {
-	for (let i = 0; i < cache.length; i++) {
-		if (cache[i].slug === slug) {
-			cache.splice(i, 1);
-			updateCache({ cache });
-			return cache;
+	localStorage.removeItem(slug);
+
+	const filteredCache = cache.filter(linkEntry => {
+		return linkEntry.slug !== slug;
+	});
+
+	updateCache(filteredCache);
+};
+
+export const separateExpiredLinks = () => {
+	const links = getLinks();
+	const expired = [];
+	const now = new Date();
+
+	const unexpired = links.filter((linkEntry, i) => {
+		if (now.getTime() > linkEntry.expires_at) {
+			expired.push(linkEntry);
+			localStorage.removeItem(linkEntry.slug);
+		} else {
+			return true;
 		}
-	}
+	});
+
+	updateCache(unexpired);
+
+	return expired;
 };

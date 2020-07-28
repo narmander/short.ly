@@ -35,6 +35,7 @@ body {
   }
 
   button {
+    cursor: pointer;
     outline: none;
     border:none;
     border-radius: .3em;

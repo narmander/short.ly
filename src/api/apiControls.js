@@ -1,10 +1,16 @@
-import { headers, errorFoundIn } from '../utils/utility';
+import {
+	headers,
+	errorFoundIn,
+	TIME_TO_LIVE,
+	POST,
+	DELETE,
+} from '../utils/utility';
 
-export const createLink = async (longURL, customSlug = null, ttl = 60000) => {
+export const createLink = async (longURL, customSlug = null) => {
 	const response = await fetch(
 		process.env.API_URL,
 		headers(
-			'POST',
+			POST,
 			customSlug ? { url: longURL, slug: customSlug } : { url: longURL }
 		)
 	).then(async res => {
@@ -15,7 +21,7 @@ export const createLink = async (longURL, customSlug = null, ttl = 60000) => {
 
 			const normalizedEntry = Object.assign(linkDetails, {
 				created_at: new Date(),
-				expires_at: new Date().getTime() + ttl,
+				expires_at: new Date().getTime() + TIME_TO_LIVE,
 			});
 			return { error: false, result: normalizedEntry };
 		}
@@ -24,6 +30,17 @@ export const createLink = async (longURL, customSlug = null, ttl = 60000) => {
 	return response;
 };
 
-export const deleteLink = () => {
-    
+export const deleteLink = async slug => {
+	const response = await fetch(
+		`${process.env.API_URL}${slug}`,
+		headers(DELETE)
+	).then(res => {
+		if(errorFoundIn(res)) {
+			return { error: true, result: res.statusText};
+		} else {
+			return { error: false }
+		}
+	});
+
+	return response;
 };
