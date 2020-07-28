@@ -47,10 +47,11 @@ module.exports = {
 	resolve: {
 		alias: {
 			Assets: path.resolve(__dirname, 'src/Assets'),
+			API: path.resolve(__dirname, 'src/api'),
 			Components: path.resolve(__dirname, 'src/Components'),
-			DB: path.resolve(__dirname, 'src/database'),
+			SharedComponents:  path.resolve(__dirname, 'src/SharedComponents'),
+			Storage: path.resolve(__dirname, 'src/storage'),
 			Utils: path.resolve(__dirname, 'src/utils'),
-			Components: path.resolve(__dirname, 'src/Components'),
 			Styles: path.resolve(__dirname, 'src/Styles'),
 		},
 		extensions: ['.js', '.jsx', '.jpg', '.png'],

@@ -1,5 +1,11 @@
 import { createGlobalStyle } from 'styled-components';
-import { TEAL, GREY } from './themes';
+
+// COLOR CONSTANTS
+export const TEAL = '#0DDAC7';
+export const CREAM = '#fffbe3';
+export const ORANGE = '#EF7E1E';
+export const OFF_WHITE = '#fafafa';
+export const GREY = '#cccccc';
 
 // resetting browser default styles
 export const GlobalStyles = createGlobalStyle`

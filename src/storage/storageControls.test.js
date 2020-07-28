@@ -1,7 +1,7 @@
 import { updateCache, makeHash } from './storageControls';
 
 describe('localStorage controls', () => {
-	describe('makeHash', () => {
+	xdescribe('makeHash', () => {
 		it('returns a string of slug chararcter codes', () => {
 			const slug = 'abc';
 			const hash = '979899';
@@ -39,6 +39,3 @@ describe('localStorage controls', () => {
 		});
 	});
 });
-
-// so we can separate other database categories like users
-// in the future

@@ -1,30 +1,31 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import Clipboard from 'clipboard';
 import {
 	getLinks,
 	updateCache,
 	slugExists,
 	removeLink,
 	separateExpiredLinks,
-} from '../../storage/storageControls';
-import { createLink, deleteLink } from '../../api/apiControls';
-import { ORANGE, CREAM, GREY } from 'Styles/themes';
-import { timeLeft } from '../../utils/utility';
+} from 'Storage/storageControls';
+import { createLink, deleteLink } from 'API/apiControls';
+import { ORANGE, CREAM, GREY } from 'Styles/globalStyles';
+import { timeLeft } from 'Utils/utility';
 
 export const LinkManager = () => {
 	const [cache, setCache] = useState([]);
 	const [error, setError] = useState('');
+	let clipboardCopy = new Clipboard('#copy-target');
 
 	useEffect(() => {
 		if (!localStorage.hasOwnProperty('links')) {
 			localStorage.setItem('links', '[]');
 		} else {
-			
 			const expiredLinks = separateExpiredLinks();
-			
+
 			setCache(getLinks());
 
-			expiredLinks.forEach((expiredLink) => {
+			expiredLinks.forEach(expiredLink => {
 				deleteLink(expiredLink.slug);
 			});
 		}
@@ -92,7 +93,7 @@ export const LinkManager = () => {
 							<input
 								type='text'
 								className='long-link-input'
-								pattern='^(https?://)?([a-zA-Z0-9]([a-zA-ZäöüÄÖÜ0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$'
+								pattern='^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$'
 								placeholder='Take a bite out of that link!'
 								required={true}
 								onChange={handleInputChange}
@@ -108,6 +109,7 @@ export const LinkManager = () => {
 								type='text'
 								onChange={handleInputChange}
 								name='customSlug'
+								maxLength="15"
 							/>
 						</div>
 						<div className='shorten-button-container'>
@@ -128,7 +130,9 @@ export const LinkManager = () => {
 											<span className='long-link'>{link.url}</span>
 										</div>
 										<div className='expiration-container'>
-											<span className='expiration-timer'>Expires in: {timeLeft(link.expires_at)}min</span>
+											<span className='expiration-timer'>
+												Expires in: {timeLeft(link.expires_at)}min
+											</span>
 											<button
 												className='expire-link-button'
 												children='Expire Now'
@@ -147,9 +151,11 @@ export const LinkManager = () => {
 											</span>
 											<span className='copy-button-container'>
 												<button
+													id='copy-target'
 													className='copy-button'
 													type='copy'
 													children='Copy'
+													data-clipboard-text={link.short_url}
 												/>
 											</span>
 										</div>
