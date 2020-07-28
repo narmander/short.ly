@@ -12,3 +12,9 @@ export const headers = (method = 'GET', data = '') => {
 		body: JSON.stringify(data),
 	};
 };
+
+export const errorFoundIn = res => {
+	if (res.status === 401 || res.status === 404 || res.status === 422) {
+		return true;
+	}
+};
